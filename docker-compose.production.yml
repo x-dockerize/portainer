@@ -1,0 +1,32 @@
+services:
+  portainer:
+    image: portainer/portainer-ce:${PORTAINER_VERSION:?required}
+    container_name: portainer
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./.docker/portainer/data:/data
+    networks:
+      - traefik-network
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-network
+
+      - traefik.http.routers.portainer.rule=Host(`${PORTAINER_SERVER_HOSTNAME:?required}`)
+      - traefik.http.routers.portainer.entrypoints=websecure
+      - traefik.http.routers.portainer.tls.certresolver=le-cloudflare
+      - traefik.http.routers.portainer.middlewares=trusted@file
+      - traefik.http.routers.portainer.service=portainer
+
+      - traefik.http.services.portainer.loadbalancer.server.port=9000
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9000/api/system/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+
+networks:
+  traefik-network:
+    external: true
