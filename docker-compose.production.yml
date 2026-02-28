@@ -13,8 +13,8 @@ services:
       - traefik.docker.network=traefik-network
 
       - traefik.http.routers.portainer.rule=Host(`${PORTAINER_SERVER_HOSTNAME:?required}`)
-      - traefik.http.routers.portainer.entrypoints=websecure
-      - traefik.http.routers.portainer.tls.certresolver=le-cloudflare
+      - traefik.http.routers.portainer.entrypoints=https
+      - traefik.http.routers.portainer.tls.certresolver=cloudflare
       - traefik.http.routers.portainer.middlewares=trusted@file
       - traefik.http.routers.portainer.service=portainer
 
